@@ -1,0 +1,42 @@
+{
+  "name": "@r-t-p/clean-typescript",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "justplainfred",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc",
+    "dev": "tsc -w",
+    "preversion": "npm run test",
+    "version": "npm run build",
+    "postversion": "git push && git push --tags",
+    "bump": "npm version patch",
+    "bump-minor": "npm version minor",
+    "bump-major": "npm version major"
+  },
+    "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rock-the-party/clean-typescript.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rock-the-party/clean-typescript/issues"
+  },
+  "keywords": [],
+  "devDependencies": {
+    "jest": "^29.5.0",
+    "typescript": "^5.0.3",
+    "@types/jest": "^29.5.0",
+    "ts-jest": "^29.1.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.ts",
+      "**/?(*.)+(spec|test).ts"
+    ]
+  }
+}
