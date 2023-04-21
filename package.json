@@ -1,5 +1,5 @@
 {
-  "name": "@r-t-p/clean-typescript",
+  "name": "@r-t-p/particles",
   "version": "0.0.1",
   "description": "",
   "main": "dist/index.js",
@@ -17,7 +17,7 @@
     "bump-minor": "npm version minor",
     "bump-major": "npm version major"
   },
-    "repository": {
+  "repository": {
     "type": "git",
     "url": "git+https://github.com/rock-the-party/clean-typescript.git"
   },
@@ -26,10 +26,14 @@
   },
   "keywords": [],
   "devDependencies": {
-    "jest": "^29.5.0",
-    "typescript": "^5.0.3",
+    "@r-t-p/game-loop": "^0.1.2",
+    "@r-t-p/random": "^0.0.5",
+    "@r-t-p/renderer": "^0.0.5",
+    "@r-t-p/utilities": "^0.0.8",
     "@types/jest": "^29.5.0",
-    "ts-jest": "^29.1.0"
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.3"
   },
   "jest": {
     "preset": "ts-jest",
