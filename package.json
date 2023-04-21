@@ -2,8 +2,8 @@
   "name": "@r-t-p/particles",
   "version": "0.0.1",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "bin/index.js",
+  "types": "bin/index.d.ts",
   "author": "justplainfred",
   "license": "MIT",
   "scripts": {
