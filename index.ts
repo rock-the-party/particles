@@ -1,8 +1,6 @@
-import { BuildCircleSpec, DrawableSpecs, Point, RadianAngle, Renderer, RendererSpecType } from "@r-t-p/renderer"
-import { generateUUID } from "@r-t-p/utilities";
+import { DrawableSpecs, Renderer, RendererSpecType } from "@r-t-p/renderer"
+import { NextGaussian, generateUUID } from "@r-t-p/utilities";
 import { ILoopItem } from "@r-t-p/game-loop";
-import { NextGaussian, PointOnCircle } from "@r-t-p/random";
-import { Vector } from "@r-t-p/utilities";
 
 export type RandomRange = {
   Mean: number;
@@ -16,17 +14,18 @@ export type ParticleTypeConfig = {
   sizeRange: RandomRange;
   lifeRange: RandomRange;
   speedRange: RandomRange;
-  directionRange: RadianAngle;
-
+  direction: RandomRange;
   OnDeath: () => {};
 }
 
-export type ParticleGenerator = Particle & {
+export type ParticleGenerator = Particle & ILoopItem & {
   emissionFrequencyInMilliseconds: number;
+  isEmitting: boolean;
   GetParticles(): Particle[];
+  CreateParticle(): void;
 }
 
-export type Particle = ILoopItem & {
+export type Particle = {
   particleType: string;
   age: number;
   lifespan: number;
@@ -38,7 +37,7 @@ export type Particle = ILoopItem & {
 export class ParticleFactory {
   private configs: Map<string, ParticleTypeConfig>;
 
-  constructor(private renderer: Renderer, public drawSpec: DrawableSpecs) {
+  constructor(private renderer: Renderer) {
     this.configs = new Map<string, ParticleTypeConfig>();
   }
 
@@ -63,7 +62,9 @@ class GenericParticleGenerator implements ParticleGenerator {
   public lifespan: number;
   public speed: number;
   public direction: number;
+  public isEmitting: boolean;
   private particles: Particle[] = [];
+  private timeSinceEmission: number = 0;
 
   constructor(public config: ParticleTypeConfig, private renderer: Renderer, public drawableSpec: DrawableSpecs) {
     this.id = generateUUID();
@@ -71,25 +72,24 @@ class GenericParticleGenerator implements ParticleGenerator {
     this.direction = 0;
     this.particleType = config.ParticleType;
     this.lifespan = Infinity;
+    this.isEmitting = false;
   }
 
   handleInput(): void {
-    for (let particle of this.particles) {
-      particle.handleInput();
-    }
   }
 
   update(elapsedMilliseconds: number): void {
+    this.emitParticles(elapsedMilliseconds);
     updateParticle(elapsedMilliseconds, this);
     for (let particle of this.particles) {
-      particle.update(elapsedMilliseconds);
+      updateParticle(elapsedMilliseconds, particle);
     }
   }
 
   render(): void {
     renderParticle(this.renderer, this);
     for (let particle of this.particles) {
-      particle.render();
+      renderParticle(this.renderer, particle);
     }
   }
 
@@ -99,6 +99,29 @@ class GenericParticleGenerator implements ParticleGenerator {
 
   GetParticles(): Particle[] {
     return this.particles;
+  }
+
+  public CreateParticle() {
+    let particle: Particle = {
+      age: 0,
+      direction: NextGaussian(this.config.direction.Mean, this.config.direction.StdDev),
+      drawableSpec: Object.assign(this.config.drawableSpec),
+      lifespan: NextGaussian(this.config.lifeRange.Mean, this.config.lifeRange.StdDev),
+      particleType: this.config.ParticleType,
+      speed: NextGaussian(this.config.speedRange.Mean, this.config.speedRange.StdDev),
+    }
+    this.particles.push(particle);
+  }
+
+  private emitParticles(elapsedMilliseconds: number): void {
+    if (!this.isEmitting || this.emissionFrequencyInMilliseconds <= 0) return;
+    this.timeSinceEmission += elapsedMilliseconds;
+    let particlesNeeded = Math.floor(this.timeSinceEmission / this.emissionFrequencyInMilliseconds);
+    let remainder = this.timeSinceEmission % this.emissionFrequencyInMilliseconds
+    for (let i = 0; i < particlesNeeded ; ++i) {
+      this.CreateParticle();
+    }
+    this.timeSinceEmission = remainder;
   }
 }
 

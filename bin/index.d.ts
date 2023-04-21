@@ -1,4 +1,4 @@
-import { DrawableSpecs, RadianAngle, Renderer } from "@r-t-p/renderer";
+import { DrawableSpecs, Renderer } from "@r-t-p/renderer";
 import { ILoopItem } from "@r-t-p/game-loop";
 export type RandomRange = {
     Mean: number;
@@ -10,14 +10,16 @@ export type ParticleTypeConfig = {
     sizeRange: RandomRange;
     lifeRange: RandomRange;
     speedRange: RandomRange;
-    directionRange: RadianAngle;
+    direction: RandomRange;
     OnDeath: () => {};
 };
-export type ParticleGenerator = Particle & {
+export type ParticleGenerator = Particle & ILoopItem & {
     emissionFrequencyInMilliseconds: number;
+    isEmitting: boolean;
     GetParticles(): Particle[];
+    CreateParticle(): void;
 };
-export type Particle = ILoopItem & {
+export type Particle = {
     particleType: string;
     age: number;
     lifespan: number;
@@ -27,9 +29,8 @@ export type Particle = ILoopItem & {
 };
 export declare class ParticleFactory {
     private renderer;
-    drawSpec: DrawableSpecs;
     private configs;
-    constructor(renderer: Renderer, drawSpec: DrawableSpecs);
+    constructor(renderer: Renderer);
     RegisterParticleType(config: ParticleTypeConfig): void;
     CreateParticleGenerator(particleType: string, drawSpec: DrawableSpecs): ParticleGenerator | null;
 }
