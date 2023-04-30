@@ -1,4 +1,4 @@
-import { DrawableSpecs, Renderer, RendererSpecType } from "@r-t-p/renderer"
+import { DrawableSpecs, Point, Renderer, RendererSpecType } from "@r-t-p/renderer"
 import { NextGaussian, generateUUID } from "@r-t-p/utilities";
 import { ILoopItem } from "@r-t-p/game-loop";
 
@@ -102,14 +102,17 @@ class GenericParticleGenerator implements ParticleGenerator {
   }
 
   public CreateParticle() {
+    let spec: DrawableSpecs = Object.assign(this.config.drawableSpec);
+
     let particle: Particle = {
       age: 0,
       direction: NextGaussian(this.config.direction.Mean, this.config.direction.StdDev),
-      drawableSpec: Object.assign(this.config.drawableSpec),
+      drawableSpec: spec,
       lifespan: NextGaussian(this.config.lifeRange.Mean, this.config.lifeRange.StdDev),
       particleType: this.config.ParticleType,
       speed: NextGaussian(this.config.speedRange.Mean, this.config.speedRange.StdDev),
     }
+    setCenter(particle, getCenter(this));
     this.particles.push(particle);
   }
 
@@ -148,6 +151,30 @@ function updateParticle(elapsedMilliseconds: number, particle: Particle) {
       particle.drawableSpec.startPoint.y -= (Math.cos(particle.direction) * particle.speed * elapsedMilliseconds);
       particle.age += elapsedMilliseconds;  
       break;
+  }
+}
+
+function setCenter(particle: Particle, point: Point): void {
+  switch (particle.drawableSpec.spec) {
+    case RendererSpecType.CircleSpec: 
+    case RendererSpecType.ImageSpec:
+      particle.drawableSpec.center = point;
+      break;
+    case RendererSpecType.RectSpec:
+    case RendererSpecType.TextSpec:
+      particle.drawableSpec.startPoint = point;
+      break;
+  }
+}
+
+function getCenter(particle: Particle): Point {
+  switch (particle.drawableSpec.spec) {
+    case RendererSpecType.CircleSpec: 
+    case RendererSpecType.ImageSpec:
+      return particle.drawableSpec.center;
+    case RendererSpecType.RectSpec:
+    case RendererSpecType.TextSpec:
+      return particle.drawableSpec.startPoint;
   }
 }
 

@@ -1,6 +1,6 @@
 
-import { ParticleFactory } from './index';
 import { Renderer } from '@r-t-p/renderer';
+import { ParticleFactory } from "./index"
 import 'jest-canvas-mock';
 
 describe('factory', () => {
